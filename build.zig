@@ -1,43 +1,41 @@
 const std = @import("std");
 
-const project_name: []const u8 = "libschrift";
-
 pub fn build(b: *std.Build) void {
-    const check_step = b.step("check", "Check if " ++ project_name ++ " compiles");
+    const check_step = b.step("check", "Check if zig-libschrift compiles");
     const test_step = b.step("test", "Run unit tests");
 
     const target = b.standardTargetOptions(.{});
     const optimize = b.standardOptimizeOption(.{});
 
     // libschrift
-    const schrift_mod = b.createModule(.{ .target = target, .optimize = optimize });
-    schrift_mod.addCSourceFile(.{ .file = b.path("libschrift/schrift.c") });
-    const schrift = b.addLibrary(.{
+    const libschrift_mod = b.createModule(.{ .target = target, .optimize = optimize });
+    libschrift_mod.addCSourceFile(.{ .file = b.path("libschrift/schrift.c") });
+    const libschrift = b.addLibrary(.{
         .name = "libschrift",
         .linkage = .static,
-        .root_module = schrift_mod,
+        .root_module = libschrift_mod,
     });
-    schrift.installHeadersDirectory(b.path("libschrift/"), "schrift", .{});
-    schrift.linkLibC();
+    libschrift.installHeader(b.path("libschrift/schrift.h"), "schrift.h");
+    libschrift.linkLibC();
+    b.installArtifact(libschrift);
 
     // zig-libschrift
-    const lib_mod = b.addModule(project_name, .{
+    const schrift_mod = b.addModule("schrift", .{
         .root_source_file = b.path("src/schrift.zig"),
         .target = target,
         .optimize = optimize,
     });
-
-    lib_mod.linkLibrary(schrift);
+    schrift_mod.linkLibrary(libschrift);
 
     // Check
     const test_check = b.addTest(.{
-        .root_module = lib_mod,
+        .root_module = schrift_mod,
     });
     check_step.dependOn(&test_check.step);
 
     // Unit testing
     const lib_unit_tests = b.addTest(.{
-        .root_module = lib_mod,
+        .root_module = schrift_mod,
     });
     const run_lib_unit_tests = b.addRunArtifact(lib_unit_tests);
     test_step.dependOn(&run_lib_unit_tests.step);

@@ -1,5 +1,5 @@
 const c = @cImport({
-    @cInclude("schrift/schrift.h");
+    @cInclude("schrift.h");
 });
 
 pub const SFT = c.SFT;
