@@ -8,16 +8,8 @@ pub fn build(b: *std.Build) void {
     const optimize = b.standardOptimizeOption(.{});
 
     // libschrift
-    const libschrift_mod = b.createModule(.{ .target = target, .optimize = optimize });
-    libschrift_mod.addCSourceFile(.{ .file = b.path("libschrift/schrift.c") });
-    const libschrift = b.addLibrary(.{
-        .name = "libschrift",
-        .linkage = .static,
-        .root_module = libschrift_mod,
-    });
-    libschrift.installHeader(b.path("libschrift/schrift.h"), "schrift.h");
-    libschrift.linkLibC();
-    b.installArtifact(libschrift);
+    const libschrift_dep = b.dependency("libschrift", .{ .target = target, .optimize = optimize });
+    const libschrift_artifact = libschrift_dep.artifact("libschrift");
 
     // zig-libschrift
     const schrift_mod = b.addModule("schrift", .{
@@ -25,7 +17,7 @@ pub fn build(b: *std.Build) void {
         .target = target,
         .optimize = optimize,
     });
-    schrift_mod.linkLibrary(libschrift);
+    schrift_mod.linkLibrary(libschrift_artifact);
 
     // Check
     const test_check = b.addTest(.{

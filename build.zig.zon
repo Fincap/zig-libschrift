@@ -4,7 +4,12 @@
     .fingerprint = 0x520276c3abe5f0e9,
     .minimum_zig_version = "0.14.1",
 
-    .dependencies = .{},
+    .dependencies = .{
+        .libschrift = .{
+            .url = "git+https://github.com/Fincap/libschrift#783a6528b962777ca9aa0f518346eadefe07fff4",
+            .hash = "libschrift-0.0.0-6fDlq_S1AAAvWWsNEoO0GvSOcKVGriWEnbBE7bupG97K",
+        },
+    },
     .paths = .{
         "build.zig",
         "build.zig.zon",
